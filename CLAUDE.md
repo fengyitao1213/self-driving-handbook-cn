@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Chinese-language documentation site about autonomous driving technology (自动驾驶技术指南). Built with MkDocs and the Material theme, deployed to GitHub Pages via GitHub Actions.
 
-- **Site URL:** https://yfrobotics.github.io/self-driving-handbook-cn
+- **Site URL:** https://fengyitao1213.github.io/self-driving-handbook-cn
+- **Mirror source:** https://github.com/yfrobotics/self-driving-handbook-cn
 - **License:** CC 4.0-BY-SA
 - **Language:** All content is in Simplified Chinese (zh)
 

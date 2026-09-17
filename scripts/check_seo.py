@@ -47,7 +47,7 @@ def main():
     urls = [node.text for node in ET.parse(site / "sitemap.xml").iterfind(
         ".//{http://www.sitemaps.org/schemas/sitemap/0.9}loc"
     )]
-    home = "https://yfrobotics.github.io/self-driving-handbook-cn/"
+    home = "https://fengyitao1213.github.io/self-driving-handbook-cn/"
     assert home in urls, "Homepage missing from sitemap"
     assert len(urls) == len(set(urls)), "Duplicate sitemap URLs"
     descriptions, titles = [], []

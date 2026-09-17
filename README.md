@@ -6,7 +6,11 @@
 
 ![Image result for google autonomous car](docs/_static/img/google_av.png)
 
-**在线阅读：** <https://yfrobotics.github.io/self-driving-handbook-cn>
+**个人镜像站：** <https://fengyitao1213.github.io/self-driving-handbook-cn>
+
+**原项目：** <https://github.com/yfrobotics/self-driving-handbook-cn>
+
+本仓库是由 `fengyitao1213` 维护的独立公开镜像。站点正文、图片和构建配置均保存在仓库中；来源版本、许可及维护边界见[镜像说明](docs/mirror.md)。
 
 ## 章节一览
 
@@ -40,7 +44,7 @@ description: 用一两句话准确概括本页内容，突出本页主题。
 
 未设置 `description` 时，`scripts/seo.py` 从正文首个有效段落生成摘要。模板同时输出 Open Graph、Twitter 卡片和面包屑结构化数据；MkDocs 自动生成 canonical URL 与 `sitemap.xml`。
 
-线上站点地图为 <https://yfrobotics.github.io/self-driving-handbook-cn/sitemap.xml>，可提交到 Google Search Console。本站部署在 GitHub Pages 子路径下，爬虫只读取域名根目录的 `robots.txt`，因此本仓库不添加子路径下无效的爬虫规则文件。
+线上站点地图为 <https://fengyitao1213.github.io/self-driving-handbook-cn/sitemap.xml>，可提交到 Google Search Console。本站部署在 GitHub Pages 子路径下，爬虫只读取域名根目录的 `robots.txt`，因此本仓库不添加子路径下无效的爬虫规则文件。
 
 ## 贡献
 

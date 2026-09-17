@@ -1,10 +1,15 @@
-name: Build Documentation using MkDocs
+name: Build and deploy personal mirror
 
 on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: personal-mirror-pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -25,7 +30,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: write

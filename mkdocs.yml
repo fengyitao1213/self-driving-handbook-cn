@@ -1,13 +1,13 @@
 # Site Configurations
-site_name: "自动驾驶指南"
+site_name: "自动驾驶技术指南（个人镜像）"
 site_description: 中文自动驾驶技术指南，系统介绍自动驾驶分级、系统架构、传感器、感知定位、规划控制、仿真测试与视觉语言模型，结合 Apollo、Waymo、Tesla 等案例讲解工程实践。
-site_author: "YFRL"
-site_url: https://yfrobotics.github.io/self-driving-handbook-cn/
+site_author: "云飞机器人实验室；镜像维护：fengyitao1213"
+site_url: https://fengyitao1213.github.io/self-driving-handbook-cn/
 strict: true
 
 # Repository
-repo_name: 'yfrobotics/self-driving-handbook-cn'
-repo_url: 'https://github.com/yfrobotics/self-driving-handbook-cn'
+repo_name: 'fengyitao1213/self-driving-handbook-cn'
+repo_url: 'https://github.com/fengyitao1213/self-driving-handbook-cn'
 edit_uri: edit/master/docs/
 
 docs_dir: docs
@@ -133,6 +133,7 @@ nav:
     - casestudy/chinese_players.md
     - casestudy/robotaxi.md
   - '8. 参与贡献':
+    - mirror.md
     - how-to-contribute.md
     - standard.md
     - contributors.md
@@ -160,10 +161,7 @@ theme:
     text: 'Fira Sans'
     code: 'Fira Mono'
 
-extra:
-  analytics:
-    provider: google
-    property: G-N0PZM76K4V
+copyright: 原内容由云飞机器人实验室发起；本镜像由 fengyitao1213 维护，遵循 CC BY-SA 4.0。
 
 # Plugins
 plugins:

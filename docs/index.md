@@ -9,6 +9,9 @@ description: 中文自动驾驶技术指南，涵盖 SAE 分级、系统架构�
 
 本指南由 云飞机器人实验室 ( [知乎](https://www.zhihu.com/column/yfworld) | [B站](https://space.bilibili.com/493264461) | [博客](https://yfrobotics.github.io/) | [YouTube](https://www.youtube.com/@yfrobotics) | [Ins](https://www.instagram.com/yfrobotics/) ) 发起，系统介绍自动驾驶技术的历史、现状与发展趋势，覆盖从基础概念到核心算法、从硬件系统到工程落地的完整知识体系。无论你是刚接触自动驾驶的学生，还是希望拓宽技术视野的工程师，都可以在这里找到适合的内容。
 
+!!! info "个人镜像说明"
+    本站是由 [fengyitao1213](https://github.com/fengyitao1213) 维护的独立镜像，基于云飞机器人实验室公开发布的内容构建。正文、图片和构建文件均保存在本镜像仓库中，不依赖原站继续对外开放。来源版本、许可和维护边界见[镜像说明](mirror.md)。
+
 ![Google 自动驾驶测试车](_static/img/google_av.png)
 
 ---
@@ -41,17 +44,7 @@ description: 中文自动驾驶技术指南，涵盖 SAE 分级、系统架构�
 
 ## 参与贡献
 
-本指南是一个开源项目，欢迎所有人参与完善。你可以通过提交 Pull Request 或创建 Issue 来贡献内容。详见[如何贡献](how-to-contribute.md)和[书写规范](standard.md)。
-
----
-
-## 赞助支持
-
-如果本指南对你有帮助，欢迎通过支付宝或微信支付支持我们。你的支持会用于内容的持续更新与维护，非常感谢！
-
-<p align="left">
-  <img src="_static/img/payment-qr-codes.png" alt="支付宝 / 微信支付" width="520">
-</p>
+本指南是一个开源项目，欢迎参与完善。针对本镜像的修订，可以在[镜像仓库](https://github.com/fengyitao1213/self-driving-handbook-cn)提交 Pull Request 或 Issue。详见[如何贡献](how-to-contribute.md)和[书写规范](standard.md)。
 
 ---
 
@@ -59,4 +52,4 @@ description: 中文自动驾驶技术指南，涵盖 SAE 分级、系统架构�
 
 ![cc-by-sa-4.0](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
 
-本维基遵循"知识共享署名-相同方式共享4.0 国际协议 (CC 4.0-BY-SA)" ，详见[条款](https://creativecommons.org/licenses/by-sa/4.0/deed.zh-Hans)。
+除另有说明外，本站内容遵循“知识共享署名-相同方式共享 4.0 国际协议（CC BY-SA 4.0）”，并保留对原项目及贡献者的署名。详见[镜像与版权说明](mirror.md)和[许可条款](https://creativecommons.org/licenses/by-sa/4.0/deed.zh-Hans)。

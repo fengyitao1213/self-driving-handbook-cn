@@ -1,13 +1,15 @@
 # 如何贡献这个维基？
 
-[项目 GitHub 地址](https://github.com/yfrobotics/self-driving-handbook-cn)
+[镜像项目 GitHub 地址](https://github.com/fengyitao1213/self-driving-handbook-cn)
+
+本仓库是基于 [yfrobotics/self-driving-handbook-cn](https://github.com/yfrobotics/self-driving-handbook-cn) 建立的个人镜像。来源、许可和同步原则见[镜像说明](mirror.md)。
 
 ## 贡献方式
 
 你可以通过以下任意方式参与：
 
 - **提交 Pull Request**：fork → clone → 修改 → push → 发起 PR
-- **提交 Issue**：对内容、结构、错别字等任何问题[创建 issue](https://github.com/yfrobotics/self-driving-handbook-cn/issues)
+- **提交 Issue**：对内容、结构、错别字等任何问题[创建 issue](https://github.com/fengyitao1213/self-driving-handbook-cn/issues)
 
 在动手前，建议先阅读[书写规范](standard.md)，新增条目时请同步更新 `mkdocs.yml` 的 `nav` 配置。
 
