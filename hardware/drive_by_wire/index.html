@@ -1,0 +1,6193 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="线控技术（Drive-by-Wire，DbW）以电子信号取代传统的机械或液压连接，是实现自动驾驶车辆自主控制的核心基础。在传统汽车中，驾驶员通过方向盘柱、刹车油管、油门拉线等机械结构直接操控车辆；而在线控架构下，这些物理链路被传感器、电子控制单元（ECU）和执行器所替代，上层自动驾驶决策算法得以精确、实时地控制车辆的…">
+      
+      
+        <meta name="author" content="云飞机器人实验室；镜像维护：fengyitao1213">
+      
+      
+        <link rel="canonical" href="https://fengyitao1213.github.io/self-driving-handbook-cn/hardware/drive_by_wire/">
+      
+      
+        <link rel="prev" href="../compute_chips/">
+      
+      
+        <link rel="next" href="../drive_by_wire_actuation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>线控系统（Drive-by-Wire） - 自动驾驶技术指南（个人镜像）</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:300,300i,400,400i,700,700i%7CFira+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Fira Sans";--md-code-font:"Fira Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../_static/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+    
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="zh_CN">
+    <meta property="og:site_name" content="自动驾驶技术指南（个人镜像）">
+    <meta property="og:title" content="线控系统（Drive-by-Wire） - 自动驾驶技术指南（个人镜像）">
+    <meta property="og:description" content="线控技术（Drive-by-Wire，DbW）以电子信号取代传统的机械或液压连接，是实现自动驾驶车辆自主控制的核心基础。在传统汽车中，驾驶员通过方向盘柱、刹车油管、油门拉线等机械结构直接操控车辆；而在线控架构下，这些物理链路被传感器、电子控制单元（ECU）和执行器所替代，上层自动驾驶决策算法得以精确、实时地控制车辆的…">
+    <meta property="og:url" content="https://fengyitao1213.github.io/self-driving-handbook-cn/hardware/drive_by_wire/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="线控系统（Drive-by-Wire） - 自动驾驶技术指南（个人镜像）">
+    <meta name="twitter:description" content="线控技术（Drive-by-Wire，DbW）以电子信号取代传统的机械或液压连接，是实现自动驾驶车辆自主控制的核心基础。在传统汽车中，驾驶员通过方向盘柱、刹车油管、油门拉线等机械结构直接操控车辆；而在线控架构下，这些物理链路被传感器、电子控制单元（ECU）和执行器所替代，上层自动驾驶决策算法得以精确、实时地控制车辆的…">
+    
+      <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "item": "https://fengyitao1213.github.io/self-driving-handbook-cn/", "name": "\u81ea\u52a8\u9a7e\u9a76\u6280\u672f\u6307\u5357\uff08\u4e2a\u4eba\u955c\u50cf\uff09", "position": 1}, {"@type": "ListItem", "item": "https://fengyitao1213.github.io/self-driving-handbook-cn/hardware/", "name": "\u7b2c\u4e09\u7ae0\uff1a\u786c\u4ef6", "position": 2}, {"@type": "ListItem", "item": "https://fengyitao1213.github.io/self-driving-handbook-cn/hardware/drive_by_wire/", "name": "\u7ebf\u63a7\u7cfb\u7edf\uff08Drive-by-Wire\uff09", "position": 3}]}</script>
+    
+  
+
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="red">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#drive-by-wire" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="自动驾驶技术指南（个人镜像）" class="md-header__button md-logo" aria-label="自动驾驶技术指南（个人镜像）" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            自动驾驶技术指南（个人镜像）
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              线控系统（Drive-by-Wire）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fengyitao1213/self-driving-handbook-cn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fengyitao1213/self-driving-handbook-cn
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="自动驾驶技术指南（个人镜像）" class="md-nav__button md-logo" aria-label="自动驾驶技术指南（个人镜像）" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    自动驾驶技术指南（个人镜像）
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fengyitao1213/self-driving-handbook-cn" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fengyitao1213/self-driving-handbook-cn
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶技术指南
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../intro/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1. 概述
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    1. 概述
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../intro/define/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶系统定义
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../intro/category/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶等级分类
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../intro/history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶发展历史
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../intro/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶术语表
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../system/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2. 系统
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2. 系统
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统架构总览：从数据流到控制流
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/vehicle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶车辆系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    车联网 V2X
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    车联网 V2X
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/v2x/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    车联网（V2X）技术详解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/v2x_comm_rsu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V2X 通信与路侧架构：协议、RSU 与部署
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/v2x_security_operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V2X 安全与运营：证书体系、标准与落地指标
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    仿真平台与数据集
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/open_source_platforms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    开源平台与生态
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高精地图
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    高精地图
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/hdmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    高精地图（HD Map）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/hdmap_data_lifecycle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HD Map 数据与生命周期：格式、采集、更新与版本治理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/hdmap_localization_lightweight/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    地图定位与轻图路线：融合、降级与工程挑战
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/hmi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    人机交互系统（HMI）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统安全保障
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶测试体系
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/incidents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    典型事故与经验教训
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/cybersecurity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶网络安全
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../system/regulation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    政策与法律法规
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3. 硬件
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    3. 硬件
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hw_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    硬件总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    计算平台 CCU
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    计算平台 CCU
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ccu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中央计算单元 (CCU / 车载AI芯片)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ccu_soc_selection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    芯片与平台选型：主流 SoC 对比与决策框架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ccu_arch_safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    异构计算与车规要求：架构、带宽、功能安全
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compute_chips/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶计算芯片
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    线控系统
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    线控系统
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    线控系统（Drive-by-Wire）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    线控系统（Drive-by-Wire）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心子系统总览
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-eps-sbw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 线控转向（EPS / SbW）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 线控转向（EPS / SbW）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-eps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 电动助力转向（EPS）工作原理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-steer-by-wiresbw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 线控转向（Steer-by-Wire，SbW）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 冗余设计要求
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 关键性能参数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-iso-26262-asil-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5 功能安全要求（ISO 26262 ASIL-D）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6 主要供应商
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-ehb-emb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 线控制动（EHB / EMB）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 线控制动（EHB / EMB）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-hcu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 传统液压制动结构（HCU）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-ehbone-box" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 电子液压制动（EHB）：One-Box 方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-emb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 电子机械制动（EMB）：全线控方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 制动响应时间对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-aeb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 AEB 自动紧急制动响应链路
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 主要产品
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 线控油门（ETC）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 线控油门（ETC）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 电子节气门控制原理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 冗余双传感器设计
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 纯电动车的扭矩矢量控制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 故障模式与安全保障
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-sbsepb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 线控换挡（SbS）与电子驻车（EPB）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 线控换挡（SbS）与电子驻车（EPB）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-shift-by-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 电子换挡器（Shift-by-Wire）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-auto-hold-epb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 自动驻车（Auto Hold）与 EPB 联动
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 线控系统冗余架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 线控系统冗余架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-l3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 双电源冗余（L3+ 要求）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-ecu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 主备 ECU 热备份
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 通信总线冗余
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-degraded-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 降级模式（Degraded Mode）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 自动驾驶接管机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 自动驾驶接管机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-tor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 驾驶员接管请求（TOR）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-ttc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 接管时间（TTC）分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-mrc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 最小风险条件（MRC）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-l3l4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 L3/L4 切换时的车辆状态保障
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 线控底盘集成验证
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 线控底盘集成验证">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-hil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 HIL（硬件在环）测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 底盘标定流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-fmea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 FMEA（失效模式与效果分析）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 量产线控底盘案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考资料
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../drive_by_wire_actuation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    线控执行层：转向、制动、驱动与换挡
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../drive_by_wire_safety_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    线控安全与验证：冗余、接管与测试
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    车载通信
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    车载通信
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    车载通信系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../communication_network_protocols/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    网络与协议：总线、以太网、拓扑与服务通信
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../communication_security_ota/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全与升级：SecOC、IDS 与 OTA 工程实践
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    感知传感器
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    感知传感器
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    感知传感器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensors_active/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    主动感知传感器：LiDAR、毫米波与超声波
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sensors_vision_positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    视觉与定位传感器：摄像头、IMU、GNSS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_8" id="__nav_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    摄像头
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    摄像头
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../camera/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    视觉传感器（摄像头）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../camera_imaging_calibration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    成像与标定：光学基础、ISP、内外参与误差治理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../camera_sync_reliability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    同步与可靠性：时间对齐、健康监测与量产维护
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../algorithm/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4. 算法
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    4. 算法
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    软件框架
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    软件框架
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/sw_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    系统软件框架总览
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/sw_overview_arch_timing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构与时延：模块边界、时间预算与功能安全
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/sw_overview_middleware_deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中间件与部署：ROS2/Cyber RT/AUTOSAR 与云边协同
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/image_processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像感知与处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/laser_processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    激光点云数据处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/sensor_fusion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    传感器融合
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/occupancy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    占用网络（Occupancy Network）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/world_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    世界模型与神经场景表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    定位
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    定位
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/localisation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    地图与定位
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/localisation_slam_fusion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLAM 与融合定位：方法、架构与工程实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/localisation_metrics_ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    定位评估与运维：指标、失效场景与降级策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    路径规划
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    路径规划
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/path_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    路径规划
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/path_planning_global_behavior/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    全局路由与行为规划
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/path_planning_local_trajectory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    局部轨迹与速度规划
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/prediction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    行为预测
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/decision_making/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    决策 (Decision Making)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    车辆控制
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    车辆控制
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    控制算法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/control_lateral/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    横向控制：模型、算法与调参
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/control_longitudinal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    纵向控制：跟驰、制动与舒适性
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/metrics_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    算法评估与验证指标
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    端到端
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_14">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    端到端
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/end_to_end/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    端到端自动驾驶
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/end_to_end_data_training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    数据与训练体系：闭环、扩展律与仿真生成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/end_to_end_safety_deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安全与部署体系：可解释、验证、上线与回滚
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/data_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自动驾驶ML数据管道
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/datasets_benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    公开数据集与评测基准
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../algorithm/nlp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    自然语言处理与大语言模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../simulation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5. 仿真测试
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    5. 仿真测试
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/platforms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    仿真平台
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/environment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    仿真环境建模
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/sensors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    传感器仿真
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    交通场景生成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    仿真测试方法论
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    仿真评估指标
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../simulation/sim2real/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sim-to-Real 迁移
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../vlm/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. 视觉语言大模型
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    6. 视觉语言大模型
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/foundation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLM 基础模型
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/scene_understanding/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    场景理解与描述
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/decision_planning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基于 VLM 的决策与规划
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/data_annotation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    数据标注与闭环
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/hmi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    人机交互
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    部署与优化
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vlm/outlook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    展望与挑战
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../casestudy/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7. 实例
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    7. 实例
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apollo 案例
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apollo 案例
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/apollo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    百度 Apollo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/apollo_tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apollo 技术栈深度解析：架构、感知、定位、规划
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/apollo_operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apollo 商业化与运营实践：Robotaxi 落地与成本路径
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/waymo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Waymo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_8_4" id="__nav_8_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tesla 案例
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tesla 案例
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/tesla/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tesla FSD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/tesla_cybercab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tesla Cybercab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/chinese_players/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中国自动驾驶企业
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../casestudy/robotaxi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Robotaxi：自动驾驶商业化的主战场
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. 参与贡献
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    8. 参与贡献
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../mirror/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    镜像说明与版权归属
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to-contribute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    如何贡献这个维基？
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书写规范
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    贡献者名单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心子系统总览
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-eps-sbw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 线控转向（EPS / SbW）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 线控转向（EPS / SbW）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-eps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 电动助力转向（EPS）工作原理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-steer-by-wiresbw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 线控转向（Steer-by-Wire，SbW）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 冗余设计要求
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 关键性能参数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-iso-26262-asil-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.5 功能安全要求（ISO 26262 ASIL-D）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.6 主要供应商
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-ehb-emb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 线控制动（EHB / EMB）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 线控制动（EHB / EMB）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-hcu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 传统液压制动结构（HCU）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-ehbone-box" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 电子液压制动（EHB）：One-Box 方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-emb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 电子机械制动（EMB）：全线控方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 制动响应时间对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-aeb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 AEB 自动紧急制动响应链路
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 主要产品
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-etc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 线控油门（ETC）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 线控油门（ETC）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 电子节气门控制原理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 冗余双传感器设计
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 纯电动车的扭矩矢量控制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 故障模式与安全保障
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-sbsepb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 线控换挡（SbS）与电子驻车（EPB）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 线控换挡（SbS）与电子驻车（EPB）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-shift-by-wire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 电子换挡器（Shift-by-Wire）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-auto-hold-epb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 自动驻车（Auto Hold）与 EPB 联动
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 线控系统冗余架构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 线控系统冗余架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-l3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 双电源冗余（L3+ 要求）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-ecu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 主备 ECU 热备份
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 通信总线冗余
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-degraded-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 降级模式（Degraded Mode）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 自动驾驶接管机制
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 自动驾驶接管机制">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-tor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 驾驶员接管请求（TOR）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-ttc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 接管时间（TTC）分析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-mrc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 最小风险条件（MRC）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-l3l4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 L3/L4 切换时的车辆状态保障
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 线控底盘集成验证
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 线控底盘集成验证">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-hil" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 HIL（硬件在环）测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 底盘标定流程
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-fmea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 FMEA（失效模式与效果分析）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 量产线控底盘案例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        参考资料
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="drive-by-wire">线控系统（Drive-by-Wire）</h1>
+<p>线控技术（Drive-by-Wire，DbW）以电子信号取代传统的机械或液压连接，是实现自动驾驶车辆自主控制的核心基础。在传统汽车中，驾驶员通过方向盘柱、刹车油管、油门拉线等机械结构直接操控车辆；而在线控架构下，这些物理链路被传感器、电子控制单元（<abbr title="Electronic Control Unit，电子控制单元">ECU</abbr>）和执行器所替代，上层自动驾驶决策算法得以精确、实时地控制车辆的所有运动自由度。</p>
+<p><strong>从机械到电信号的变革</strong>意味着：</p>
+<ul>
+<li>消除机械延迟与传动间隙，实现毫秒级响应；</li>
+<li>允许软件灵活定义控制策略，无需改动硬件；</li>
+<li>为多传感器融合控制和远程驾驶提供接口；</li>
+<li>是实现 L3 及以上自动驾驶等级的必要条件。</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">本节包含</p>
+<ul>
+<li><a href="../drive_by_wire_actuation/">线控执行层</a> — 转向、制动、驱动、换挡的执行器实现与接口规范</li>
+<li><a href="../drive_by_wire_safety_validation/">线控安全与验证</a> — 冗余架构、降级策略、驾驶员接管（<abbr title="Takeover Request，接管请求">TOR</abbr>）设计、验证闭环与交付检查</li>
+</ul>
+</div>
+<h2 id="_1">核心子系统总览</h2>
+<table>
+<thead>
+<tr>
+<th>子系统</th>
+<th>替代对象</th>
+<th>关键技术</th>
+<th>典型响应时间</th>
+<th>功能安全等级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>线控转向（Steer-by-Wire）</td>
+<td>机械转向柱 + 液压助力</td>
+<td><abbr title="Electric Power Steering，电动助力转向">EPS</abbr> 电机 + 角度/扭矩传感器</td>
+<td>&lt; 30 ms</td>
+<td><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-D</td>
+</tr>
+<tr>
+<td>线控制动（Brake-by-Wire）</td>
+<td>制动液压管路</td>
+<td>EHB / EMB + 踏板模拟器</td>
+<td>&lt; 150 ms</td>
+<td><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-D</td>
+</tr>
+<tr>
+<td>线控油门（Throttle-by-Wire）</td>
+<td>油门拉索 + 机械节气门</td>
+<td>电子节气门 ETC / 电机扭矩控制</td>
+<td>&lt; 100 ms</td>
+<td><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-C</td>
+</tr>
+<tr>
+<td>线控换挡（Shift-by-Wire）</td>
+<td>机械换挡拉索</td>
+<td>电子换挡执行器</td>
+<td>&lt; 200 ms</td>
+<td><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-B</td>
+</tr>
+<tr>
+<td>电子驻车（EPB）</td>
+<td>手动驻车拉索</td>
+<td>电机驱动卡钳</td>
+<td>&lt; 500 ms</td>
+<td><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-C</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-eps-sbw">1. 线控转向（<abbr title="Electric Power Steering，电动助力转向">EPS</abbr> / <abbr title="Steer-by-Wire，线控转向">SbW</abbr>）</h2>
+<h3 id="11-eps">1.1 电动助力转向（<abbr title="Electric Power Steering，电动助力转向">EPS</abbr>）工作原理</h3>
+<p>电动助力转向（Electric Power Steering，<abbr title="Electric Power Steering，电动助力转向">EPS</abbr>）是线控转向的基础，已在现代量产车中广泛普及。其核心工作原理如下：</p>
+<ol>
+<li><strong>扭矩传感器</strong>检测驾驶员施加在转向柱上的手力扭矩 <span class="arithmatex">\(T_\text{driver}\)</span>；</li>
+<li><strong>转角传感器</strong>（Absolute Encoder）测量方向盘当前转角 <span class="arithmatex">\(\theta_\text{sw}\)</span>；</li>
+<li><strong><abbr title="Electric Power Steering，电动助力转向">EPS</abbr> <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr></strong> 根据车速 <span class="arithmatex">\(v\)</span>、转角和扭矩信号，计算所需助力扭矩：</li>
+</ol>
+<div class="arithmatex">\[T_\text{assist} = f(T_\text{driver},\, v,\, \theta_\text{sw})\]</div>
+<ol>
+<li><strong>助力电机</strong>（通常为永磁同步电机，PMSM）通过减速机构施加助力，总转向力矩为：</li>
+</ol>
+<div class="arithmatex">\[T_\text{total} = T_\text{driver} + T_\text{assist}\]</div>
+<p><abbr title="Electric Power Steering，电动助力转向">EPS</abbr> 的布置形式包括：
+- <strong>C-<abbr title="Electric Power Steering，电动助力转向">EPS</abbr></strong>（转向柱助力）：电机安装在转向柱上，结构简单，适合中小型车；
+- <strong>P-<abbr title="Electric Power Steering，电动助力转向">EPS</abbr></strong>（小齿轮助力）：电机安装在小齿轮处，助力效率较高；
+- <strong>R-<abbr title="Electric Power Steering，电动助力转向">EPS</abbr></strong>（齿条助力）：电机直接作用在齿条上，转向感最佳，适合高端车型。</p>
+<h3 id="12-steer-by-wiresbw">1.2 线控转向（Steer-by-Wire，<abbr title="Steer-by-Wire，线控转向">SbW</abbr>）</h3>
+<p>线控转向在 <abbr title="Electric Power Steering，电动助力转向">EPS</abbr> 基础上进一步断开方向盘与转向机构之间的物理连接，方向盘成为一个纯粹的输入设备（手感反馈由<strong>路感模拟电机</strong>提供），前轮转向角完全由软件控制。</p>
+<p><strong>路感模拟（Force Feedback）</strong> 的实现原理：</p>
+<p>路面作用在轮胎上的回正力矩 <span class="arithmatex">\(M_\text{aligning}\)</span> 通过轮端传感器或状态估计获得，路感电机将等比例模拟扭矩反馈至方向盘：</p>
+<div class="arithmatex">\[T_\text{feedback} = k_\text{ratio} \cdot M_\text{aligning} + T_\text{damping}\]</div>
+<p>其中 <span class="arithmatex">\(k_\text{ratio}\)</span> 为路感比例系数，可根据车速动态调整，低速时减小（减轻停车负担），高速时增大（增强路感信息）。</p>
+<p><strong><abbr title="Steer-by-Wire，线控转向">SbW</abbr> 的主要优势：</strong></p>
+<ul>
+<li>转向传动比可在软件中任意定义（Variable Gear Ratio），无需机械可变比齿轮；</li>
+<li>消除路面冲击（kick-back）对方向盘的传递，提升驾驶舒适性；</li>
+<li>方向盘可完全收折，为自动驾驶模式下的驾驶舱布局提供空间；</li>
+<li>轮端与手端完全解耦，便于自动驾驶系统独立控制前轮。</li>
+</ul>
+<h3 id="13">1.3 冗余设计要求</h3>
+<p>由于 <abbr title="Steer-by-Wire，线控转向">SbW</abbr> 断开了机械备份，功能安全风险极高，必须实现完整冗余：</p>
+<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────┐
+│              线控转向冗余架构               │
+│                                             │
+│  方向盘端                  轮端             │
+│  ┌──────────┐             ┌──────────────┐  │
+│  │ 路感电机 │             │  转向电机 A  │  │
+│  │  (主)   │             │    (主)      │  │
+│  └────┬─────┘             └──────┬───────┘  │
+│       │                          │          │
+│  ┌────▼─────┐   双CAN/以太网    ┌▼──────────┐ │
+│  │ ECU-A    ├───────────────────► ECU-B    │ │
+│  │  (主控)  │                   │  (验证)  │ │
+│  └────┬─────┘                   └──────────┘ │
+│       │ 热备份切换                            │
+│  ┌────▼─────┐             ┌──────────────┐  │
+│  │ ECU-B    │             │  转向电机 B  │  │
+│  │  (备控)  │             │    (备用)    │  │
+│  └──────────┘             └──────────────┘  │
+│                                             │
+│  电源：12V主 + 48V/12V备用                  │
+│  机械备份：紧急机械锁定或限位机构            │
+└─────────────────────────────────────────────┘
+</code></pre></div>
+<p>冗余要求包括：
+- <strong>双路独立电源</strong>：主 12V 电源 + 48V 或独立 12V 备用电源；
+- <strong>双路 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr></strong>：主 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 与验证/备份 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 同时运行，互相监测；
+- <strong>双路通信</strong>：两条独立 <abbr title="Controller Area Network，控制器局域网">CAN</abbr> FD 或车载以太网链路；
+- <strong>机械备份</strong>：部分方案在 <abbr title="Steer-by-Wire，线控转向">SbW</abbr> 彻底失效时通过机械锁将方向盘与轮端临时硬连接。</p>
+<h3 id="14">1.4 关键性能参数</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>典型指标</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>转向响应时延</td>
+<td>&lt; 30 ms</td>
+<td>从 AD 系统发出转向指令到轮端响应的端到端延迟</td>
+</tr>
+<tr>
+<td>角度传感器分辨率</td>
+<td>≤ 0.1°</td>
+<td>方向盘及轮端角度分辨率</td>
+</tr>
+<tr>
+<td>转向角速度</td>
+<td>≥ 500°/s</td>
+<td>紧急避障场景的最大转向速率</td>
+</tr>
+<tr>
+<td>扭矩传感器精度</td>
+<td>± 0.1 N·m</td>
+<td>用于路感模拟的精度要求</td>
+</tr>
+<tr>
+<td>最大转向扭矩</td>
+<td>10 ~ 30 N·m</td>
+<td>根据车型和轴荷确定</td>
+</tr>
+<tr>
+<td>故障检测时间</td>
+<td>&lt; 10 ms</td>
+<td>故障发生到检测并触发冗余切换的时间</td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-iso-26262-asil-d">1.5 功能安全要求（ISO 26262 <abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-D）</h3>
+<p>线控转向属于 ISO 26262 中安全完整性最高等级 <strong><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-D</strong> 的系统，要求：</p>
+<ul>
+<li>单点故障度量（SPFM）&gt; 99%；</li>
+<li>潜在故障度量（LFM）&gt; 90%；</li>
+<li>诊断覆盖率（DC）&gt; 99%（对随机硬件故障）；</li>
+<li>系统必须在故障后继续提供至少降级转向功能（Fail-Operational），直至驾驶员接管或车辆安全停止。</li>
+</ul>
+<h3 id="16">1.6 主要供应商</h3>
+<table>
+<thead>
+<tr>
+<th>供应商</th>
+<th>主要产品</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>博世（Bosch）</td>
+<td><abbr title="Electric Power Steering，电动助力转向">EPS</abbr>-H / <abbr title="Electric Power Steering，电动助力转向">EPS</abbr>-P / <abbr title="Steer-by-Wire，线控转向">SbW</abbr></td>
+<td>全球最大 <abbr title="Electric Power Steering，电动助力转向">EPS</abbr> 供应商</td>
+</tr>
+<tr>
+<td>捷太格特（JTEKT）</td>
+<td><abbr title="Electric Power Steering，电动助力转向">EPS</abbr>，<abbr title="Steer-by-Wire，线控转向">SbW</abbr> Steer-JT</td>
+<td>日系一级供应商</td>
+</tr>
+<tr>
+<td>耐世特（Nexteer）</td>
+<td><abbr title="Electric Power Steering，电动助力转向">EPS</abbr>，Digital <abbr title="Steer-by-Wire，线控转向">SbW</abbr></td>
+<td>全球前三 <abbr title="Electric Power Steering，电动助力转向">EPS</abbr> 供应商</td>
+</tr>
+<tr>
+<td>蒂森克虏伯（ThyssenKrupp）</td>
+<td>Electric-Power-Rack</td>
+<td>欧系高端车型供应商</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-ehb-emb">2. 线控制动（EHB / EMB）</h2>
+<h3 id="21-hcu">2.1 传统液压制动结构（HCU）</h3>
+<p>传统液压制动系统以<strong>真空助力器</strong>（Vacuum Booster）放大驾驶员踏板力，经制动主缸（Master Cylinder）转化为液压，经 ABS/ESC 液压控制单元（HCU）分配至四轮卡钳。</p>
+<p>其局限性在于：
+- 真空助力器依赖发动机进气负压，纯电动车需额外配备真空泵；
+- 液压响应较慢（约 150 ~ 300 ms），不满足 <abbr title="Automatic Emergency Braking，自动紧急制动">AEB</abbr> 对响应时间的严格要求；
+- 难以与再生制动（能量回收）精确协调；
+- 机械液压零部件多，集成度低。</p>
+<h3 id="22-ehbone-box">2.2 电子液压制动（EHB）：One-Box 方案</h3>
+<p>电子液压制动（Electro-Hydraulic Brake，EHB）用电机驱动液压泵，取代传统真空助力器，但保留液压管路和卡钳，是液压制动向线控制动的过渡方案。</p>
+<p>以<strong>博世 iBooster + ESP</strong> 为代表的 <strong>One-Box</strong> 集成方案将制动助力器与 ESP 集成为单一模块：</p>
+<ol>
+<li>驾驶员踩下制动踏板，踏板模拟器提供力反馈；</li>
+<li>踏板位置传感器（冗余双传感器）采集踏板行程信号；</li>
+<li>iBooster 电机快速建立制动液压（响应时间 &lt; 120 ms，优于传统真空助力的 200 ms+）；</li>
+<li>ESP 单元精确分配四轮制动力，实现 ABS、ESC、<abbr title="Automatic Emergency Braking，自动紧急制动">AEB</abbr> 等功能。</li>
+</ol>
+<p><strong>制动力分配模型：</strong></p>
+<p>设前轴制动力为 <span class="arithmatex">\(F_f\)</span>，后轴为 <span class="arithmatex">\(F_r\)</span>，理想制动力分配满足：</p>
+<div class="arithmatex">\[\frac{F_f}{F_r} = \frac{G_f}{G_r} = \frac{L_r + h \cdot \mu}{L_f - h \cdot \mu}\]</div>
+<p>其中 <span class="arithmatex">\(G_f\)</span>、<span class="arithmatex">\(G_r\)</span> 为前后轴动态载荷，<span class="arithmatex">\(h\)</span> 为质心高，<span class="arithmatex">\(\mu\)</span> 为路面附着系数，<span class="arithmatex">\(L_f\)</span>、<span class="arithmatex">\(L_r\)</span> 为质心到前后轴的距离。</p>
+<h3 id="23-emb">2.3 电子机械制动（EMB）：全线控方案</h3>
+<p>电子机械制动（Electro-Mechanical Brake，EMB）完全取消液压系统，由电机（通常为直流无刷电机或步进电机）通过减速机构直接驱动制动卡钳夹紧制动盘：</p>
+<div class="arithmatex">\[F_\text{clamp} = \frac{T_\text{motor} \cdot \eta}{r_\text{piston}}\]</div>
+<p>其中 <span class="arithmatex">\(T_\text{motor}\)</span> 为电机输出扭矩，<span class="arithmatex">\(\eta\)</span> 为传动效率，<span class="arithmatex">\(r_\text{piston}\)</span> 为等效活塞半径。</p>
+<p>EMB 的主要优势：
+- 响应速度最快（&lt; 100 ms），便于实现精确制动力控制；
+- 无液压管路，布置灵活，适合新能源平台；
+- 每个车轮独立控制，便于实现扭矩矢量控制；
+- 与再生制动协调更精确（电控制动力 + 回收制动力精确分配）。</p>
+<p>当前挑战：EMB 仍面临高功率消耗（四轮制动时电功率需求达数千瓦）、冗余设计复杂度高、成本较高等问题，尚未大规模量产。</p>
+<h3 id="24">2.4 制动响应时间对比</h3>
+<table>
+<thead>
+<tr>
+<th>制动类型</th>
+<th>典型响应时间</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>传统真空助力液压制动</td>
+<td>200 ~ 300 ms</td>
+<td>包含真空助力器延迟</td>
+</tr>
+<tr>
+<td>EHB（iBooster 方案）</td>
+<td>100 ~ 150 ms</td>
+<td>电机快速建压</td>
+</tr>
+<tr>
+<td>EMB</td>
+<td>50 ~ 100 ms</td>
+<td>电机直驱，无液压延迟</td>
+</tr>
+<tr>
+<td><abbr title="Automatic Emergency Braking，自动紧急制动">AEB</abbr> 系统端到端响应</td>
+<td>&lt; 150 ms</td>
+<td>从感知触发到制动力建立</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-aeb">2.5 <abbr title="Automatic Emergency Braking，自动紧急制动">AEB</abbr> 自动紧急制动响应链路</h3>
+<p>自动紧急制动（Automatic Emergency Braking，<abbr title="Automatic Emergency Braking，自动紧急制动">AEB</abbr>）的完整响应链路如下：</p>
+<div class="highlight"><pre><span></span><code>目标检测（感知）→ TTC 计算（融合）→ AEB 决策（规划）
+→ 制动指令下发（CAN/以太网）→ iBooster/EMB 执行 → 制动力建立
+</code></pre></div>
+<p>各环节时间分配（典型值）：</p>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>时间</th>
+<th>累计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>感知计算（摄像头/激光雷达）</td>
+<td>30 ~ 50 ms</td>
+<td>50 ms</td>
+</tr>
+<tr>
+<td>融合与决策</td>
+<td>20 ~ 30 ms</td>
+<td>80 ms</td>
+</tr>
+<tr>
+<td>通信传输（<abbr title="Controller Area Network，控制器局域网">CAN</abbr> FD）</td>
+<td>1 ~ 5 ms</td>
+<td>85 ms</td>
+</tr>
+<tr>
+<td>制动执行器响应</td>
+<td>50 ~ 120 ms</td>
+<td>&lt; 150 ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26">2.6 主要产品</h3>
+<table>
+<thead>
+<tr>
+<th>产品</th>
+<th>供应商</th>
+<th>类型</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iBooster + ESP9</td>
+<td>博世（Bosch）</td>
+<td>EHB（One-Box）</td>
+<td>市场占有率最高，响应时间 &lt; 120 ms</td>
+</tr>
+<tr>
+<td>MK C1</td>
+<td>大陆（Continental）</td>
+<td>EHB（One-Box）</td>
+<td>集成液压单元，重量轻</td>
+</tr>
+<tr>
+<td>EHBA</td>
+<td>比亚迪</td>
+<td>EHB</td>
+<td>比亚迪 e 平台专用，与 <abbr title="Electric Power Steering，电动助力转向">EPS</abbr> 深度集成</td>
+</tr>
+<tr>
+<td>EMB-4</td>
+<td>曙光制动 / Brembo</td>
+<td>EMB（研发阶段）</td>
+<td>四轮独立电机制动</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-etc">3. 线控油门（ETC）</h2>
+<h3 id="31">3.1 电子节气门控制原理</h3>
+<p>电子节气门控制（Electronic Throttle Control，ETC）已在现代汽车中全面普及，将油门踏板与节气门的物理连接替换为电子信号链路：</p>
+<ol>
+<li><strong>加速踏板位置传感器（APPS）</strong> 检测踏板行程（通常采用双传感器冗余，主传感器输出范围 0.5 ~ 4.5 V，副传感器输出为主传感器信号的 1/2 作为交叉验证）；</li>
+<li><strong>发动机 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr>（EMS）</strong> 根据踏板信号、发动机转速、进气量等计算目标扭矩；</li>
+<li><strong>节气门执行器</strong>（直流电机 + 弹簧复位机构）调节进气量，控制发动机输出扭矩；</li>
+<li><strong>节气门位置传感器（TPS）</strong> 反馈实际节气门开度，构成闭环控制。</li>
+</ol>
+<p>节气门开度控制采用 <abbr title="Proportional-Integral-Derivative，比例-积分-微分控制">PID</abbr> 闭环：</p>
+<div class="arithmatex">\[u(t) = K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d \frac{de(t)}{dt}\]</div>
+<p>其中 <span class="arithmatex">\(e(t) = \theta_\text{target} - \theta_\text{actual}\)</span> 为目标与实际节气门开度之差。</p>
+<h3 id="32">3.2 冗余双传感器设计</h3>
+<p>为防止 APPS 单点故障导致意外加速（Unintended Acceleration），双传感器设计是强制要求：</p>
+<ul>
+<li>主传感器（APPS1）与副传感器（APPS2）安装在同一踏板模块，但电路独立；</li>
+<li><abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 持续比较两路信号：若 <span class="arithmatex">\(|V_{\text{APPS1}} - 2 \times V_{\text{APPS2}}| &gt; \varepsilon\)</span>，则判定传感器故障；</li>
+<li>故障发生时，系统限制节气门开度（如最大 20%），触发驾驶员警告并进入跛行模式。</li>
+</ul>
+<h3 id="33">3.3 纯电动车的扭矩矢量控制</h3>
+<p>纯电动车以电机扭矩直接替代节气门控制，响应速度更快（电机扭矩建立 &lt; 10 ms），且可实现 <strong>扭矩矢量控制（Torque Vectoring）</strong>：</p>
+<p>对于四轮独立驱动（4WID）电动车，各轮驱动扭矩 <span class="arithmatex">\(T_i\)</span>（<span class="arithmatex">\(i\)</span> = FL, FR, RL, RR）可独立调节，实现：</p>
+<div class="arithmatex">\[M_z = \frac{(T_\text{FR} - T_\text{FL}) \cdot r_w}{2 d_f} + \frac{(T_\text{RR} - T_\text{RL}) \cdot r_w}{2 d_r}\]</div>
+<p>其中 <span class="arithmatex">\(M_z\)</span> 为绕竖轴的偏航力矩，<span class="arithmatex">\(r_w\)</span> 为车轮半径，<span class="arithmatex">\(d_f\)</span>、<span class="arithmatex">\(d_r\)</span> 为前后轮距。通过控制 <span class="arithmatex">\(M_z\)</span> 可主动调整车辆转向特性（过度转向 / 不足转向补偿），无需依赖制动介入。</p>
+<h3 id="34">3.4 故障模式与安全保障</h3>
+<table>
+<thead>
+<tr>
+<th>故障类型</th>
+<th>故障描述</th>
+<th>安全措施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>节气门卡滞（开）</td>
+<td>节气门无法关闭，车辆持续加速</td>
+<td>点火切断 / 变速器切入空挡 / 制动优先逻辑</td>
+</tr>
+<tr>
+<td>节气门卡滞（关）</td>
+<td>节气门无法打开，车辆失去动力</td>
+<td>弹簧复位（默认弹簧使节气门开至约 7% 的怠速位置）</td>
+</tr>
+<tr>
+<td>APPS 信号丢失</td>
+<td>踏板位置无法读取</td>
+<td>跛行模式（限速 / 限扭矩）</td>
+</tr>
+<tr>
+<td>通信中断（<abbr title="Controller Area Network，控制器局域网">CAN</abbr> 丢帧）</td>
+<td>AD 系统无法下发油门指令</td>
+<td>保持最后有效指令或降为零扭矩</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-sbsepb">4. 线控换挡（SbS）与电子驻车（EPB）</h2>
+<h3 id="41-shift-by-wire">4.1 电子换挡器（Shift-by-Wire）</h3>
+<p>线控换挡（Shift-by-Wire，SbS）以电信号替代传统的机械换挡拉索，执行器直接操作变速器内部的选换挡电磁阀或电机。</p>
+<p>常见换挡控制器形式：
+- <strong>按键式（Push-button）</strong>：每个挡位对应一个独立按键（如 P / R / N / D），操作直观；
+- <strong>旋钮式（Rotary Dial）</strong>：旋转旋钮选择挡位，回中位后挡位保持；
+- <strong>短柄拨杆式（Short Shifter）</strong>：保留传统换挡操作感，但内部为电子信号。</p>
+<p>SbS 的优势：
+- 消除换挡拉索的磨损和调节问题；
+- 支持远程换挡控制（自动泊车时由 AD 系统直接操作换挡）；
+- P 挡可在断电后由独立机构自动接合，防止溜车。</p>
+<h3 id="42-auto-hold-epb">4.2 自动驻车（Auto Hold）与 EPB 联动</h3>
+<p>电子驻车制动（Electronic Parking Brake，EPB）由电机直接驱动后轮卡钳或驻车机构，替代传统手刹拉线。</p>
+<p><strong>Auto Hold（自动保持）功能</strong>工作逻辑：</p>
+<ol>
+<li>车辆减速至完全停止（车速 = 0）；</li>
+<li>检测到驾驶员松开制动踏板；</li>
+<li>Auto Hold 自动接管制动系统，保持当前制动压力；</li>
+<li>驾驶员踩下油门踏板时，Auto Hold 释放，由驱动力防止溜车；</li>
+<li>坡道启动时与 Hill-Start Assist（HSA）协同工作，避免后溜。</li>
+</ol>
+<p><strong>P 挡自动接合逻辑：</strong></p>
+<div class="highlight"><pre><span></span><code>车速 = 0 → 驾驶员拔钥匙 / 开门 / 解开安全带
+                       ↓
+              系统自动切换至 P 挡
+                       ↓
+         EPB 电机锁紧后轮 → 确认锁紧力矩 &gt; 阈值
+                       ↓
+              系统判定停车安全完成
+</code></pre></div>
+<hr />
+<h2 id="5">5. 线控系统冗余架构</h2>
+<h3 id="51-l3">5.1 双电源冗余（L3+ 要求）</h3>
+<p>L3 及以上自动驾驶场景要求线控系统在驾驶员无需即时接管的情况下持续安全运行，单一电源故障不可导致线控功能丧失：</p>
+<table>
+<thead>
+<tr>
+<th>电源层级</th>
+<th>电压等级</th>
+<th>供电对象</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主电源</td>
+<td>12 V（传统） / 48 V（轻混）</td>
+<td>全部线控执行器</td>
+<td>由发电机/电池供电</td>
+</tr>
+<tr>
+<td>备用电源</td>
+<td>独立 12 V 电池</td>
+<td>关键 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> + 线控转向/制动</td>
+<td>主电源故障时自动切换，续航 ≥ 30 s</td>
+</tr>
+</tbody>
+</table>
+<p>48 V 系统允许以更小电流驱动大功率执行器（线控制动电机），降低线束截面积，提升系统效率。</p>
+<h3 id="52-ecu">5.2 主备 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 热备份</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>描述</th>
+<th>切换延迟</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Active-Active（双主模式）</td>
+<td>两个 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 同时运行相同算法，互相交叉验证输出</td>
+<td>&lt; 5 ms</td>
+<td><abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-D 线控转向/制动</td>
+</tr>
+<tr>
+<td>Active-Standby（主备模式）</td>
+<td>主 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 运行，备 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 监听并随时接管</td>
+<td>10 ~ 50 ms</td>
+<td>成本敏感的 <abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-B/C 子系统</td>
+</tr>
+</tbody>
+</table>
+<p>Active-Active 模式下，两个 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 的输出通过<strong>表决逻辑（Voting Logic）</strong>仲裁：</p>
+<div class="arithmatex">\[\text{Output} = \begin{cases} \text{ECU-A output} &amp; \text{if } |\Delta| &lt; \varepsilon \\ \text{safe default} &amp; \text{if } |\Delta| \geq \varepsilon \text{ (fault detected)} \end{cases}\]</div>
+<p>其中 <span class="arithmatex">\(\Delta = \text{Output}_A - \text{Output}_B\)</span>，<span class="arithmatex">\(\varepsilon\)</span> 为允许偏差阈值。</p>
+<h3 id="53">5.3 通信总线冗余</h3>
+<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────────────┐
+│               线控系统通信冗余架构                  │
+│                                                     │
+│  自动驾驶域控制器（AD DCU）                         │
+│  ┌─────────────────────────────┐                   │
+│  │  规划模块  │  控制模块      │                   │
+│  └──────┬──────────────┬───────┘                   │
+│         │              │                           │
+│   CAN FD 主路      CAN FD 备路 / 车载以太网        │
+│    (500 kbps)       (1~100 Mbps)                  │
+│         │              │                           │
+│  ┌──────▼──────────────▼───────┐                   │
+│  │    底盘域控制器（Chassis DCU）│                   │
+│  └──────┬──────────────┬───────┘                   │
+│         │              │                           │
+│      EPS ECU        EHB/EMB ECU                   │
+│      ETC ECU        EPB ECU                        │
+└─────────────────────────────────────────────────────┘
+</code></pre></div>
+<ul>
+<li><strong>双 <abbr title="Controller Area Network，控制器局域网">CAN</abbr> FD 通道</strong>：主通道 + 备份通道，自动故障切换；</li>
+<li><strong>车载以太网（100BASE-T1 / 1000BASE-T1）</strong>：用于高带宽诊断和 <abbr title="Over-the-Air，空中升级">OTA</abbr> 升级；</li>
+<li><strong>通信帧完整性</strong>：CRC 校验 + 滚动计数器 + 超时检测，防止静默失效（Silent Failure）。</li>
+</ul>
+<h3 id="54-degraded-mode">5.4 降级模式（Degraded Mode）</h3>
+<p>当主控制器或传感器发生故障时，系统应进入预定义的降级模式，而非直接失效：</p>
+<table>
+<thead>
+<tr>
+<th>降级层级</th>
+<th>触发条件</th>
+<th>系统能力</th>
+<th>驾驶员要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全功能（Normal）</td>
+<td>所有系统正常</td>
+<td>全自动驾驶（L3/L4）</td>
+<td>监督（L3）/ 无需（L4）</td>
+</tr>
+<tr>
+<td>降级 1（Degraded-1）</td>
+<td>一路 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 故障 / 一路传感器故障</td>
+<td>限速 / 限制路线自动驾驶</td>
+<td>准备接管</td>
+</tr>
+<tr>
+<td>降级 2（Degraded-2）</td>
+<td>主通信丢失</td>
+<td>低速跛行（&lt; 20 km/h）</td>
+<td>立即接管</td>
+</tr>
+<tr>
+<td>最小风险状态（<abbr title="Minimum Risk Condition，最小风险状态">MRC</abbr>）</td>
+<td>严重故障，无法继续</td>
+<td>受控减速至停车</td>
+<td>接管 / 系统自动停车</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6">6. 自动驾驶接管机制</h2>
+<h3 id="61-tor">6.1 驾驶员接管请求（<abbr title="Takeover Request，接管请求">TOR</abbr>）</h3>
+<p>在 L3 自动驾驶中，系统检测到无法处理的场景时，向驾驶员发出<strong>接管请求（Takeover Request，<abbr title="Takeover Request，接管请求">TOR</abbr>）</strong>，要求驾驶员在规定时间内重新接管车辆控制。</p>
+<p><abbr title="Takeover Request，接管请求">TOR</abbr> 触发条件包括：
+- 自动驾驶系统检测到 <abbr title="Operational Design Domain，运行设计域">ODD</abbr>（操作设计域）边界（如天气恶化、传感器失效）；
+- 关键线控子系统（转向 / 制动）发生降级；
+- 高精地图数据缺失；
+- 预测时域内存在系统无法处理的障碍物或复杂交互场景。</p>
+<p><abbr title="Takeover Request，接管请求">TOR</abbr> 发出方式（多模态）：
+- 视觉警告（仪表屏闪烁 + HUD 红色提示）；
+- 听觉警告（蜂鸣器）；
+- 触觉警告（方向盘振动 / 安全带收紧）。</p>
+<h3 id="62-ttc">6.2 接管时间（TTC）分析</h3>
+<p><strong>接管时间（Time-To-Takeover，TTC）</strong> 定义为从 <abbr title="Takeover Request，接管请求">TOR</abbr> 发出到驾驶员完成接管（双手握住方向盘、视线回到道路、脚放到踏板）的时间。</p>
+<p>研究表明（NHTSA / SAE 标准引用），典型 TTC 分布：</p>
+<table>
+<thead>
+<tr>
+<th>驾驶员状态</th>
+<th>平均 TTC</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>驾驶员注视道路</td>
+<td>1.5 ~ 2.5 s</td>
+<td>最佳状态</td>
+</tr>
+<tr>
+<td>驾驶员轻度分心</td>
+<td>3 ~ 5 s</td>
+<td>查看手机等</td>
+</tr>
+<tr>
+<td>驾驶员高度分心</td>
+<td>&gt; 8 s</td>
+<td>睡眠、低头</td>
+</tr>
+</tbody>
+</table>
+<p>因此，SAE L3 系统要求：<strong><abbr title="Takeover Request，接管请求">TOR</abbr> 发出时刻距离危险事件的最小时间裕量应 ≥ 10 s</strong>，以保证即使驾驶员处于分心状态也有足够时间接管。</p>
+<h3 id="63-mrc">6.3 最小风险条件（<abbr title="Minimum Risk Condition，最小风险状态">MRC</abbr>）</h3>
+<p>当驾驶员未能在 TTC 内接管，或线控系统发生严重故障时，自动驾驶系统应自主执行<strong>最小风险条件（Minimum Risk Condition，<abbr title="Minimum Risk Condition，最小风险状态">MRC</abbr>）</strong>策略：</p>
+<ol>
+<li>打开危险警示灯（双闪）；</li>
+<li>平滑减速（纵向加速度 ≤ -3 m/s²，避免后车追尾）；</li>
+<li>向最近的安全区域（路肩 / 应急车道）靠边；</li>
+<li>车辆完全停止后接合 EPB；</li>
+<li>向云端发送紧急位置信息，等待援救。</li>
+</ol>
+<h3 id="64-l3l4">6.4 L3/L4 切换时的车辆状态保障</h3>
+<p>L3 到手动驾驶切换时，线控系统需确保：</p>
+<div class="arithmatex">\[\Delta\theta_\text{sw} \leq \theta_\text{threshold},\quad \Delta v \leq v_\text{threshold}\]</div>
+<p>即切换时方向盘角度偏差和速度变化在可接受范围内，防止因切换导致的瞬态冲击。对于 L4 系统，切换前需完成完整的<strong>车辆状态同步（State Synchronization）</strong>，将当前自动驾驶控制量平滑移交至驾驶员。</p>
+<hr />
+<h2 id="7">7. 线控底盘集成验证</h2>
+<h3 id="71-hil">7.1 <abbr title="Hardware in the Loop，硬件在环">HIL</abbr>（硬件在环）测试</h3>
+<p>硬件在环（Hardware-in-the-Loop，<abbr title="Hardware in the Loop，硬件在环">HIL</abbr>）测试将真实线控 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 接入仿真环境，通过实时模拟器模拟车辆动力学、传感器信号和道路环境：</p>
+<div class="highlight"><pre><span></span><code>┌────────────────────────────────────────────┐
+│              HIL 测试台架                  │
+│                                            │
+│  实时仿真器（dSPACE / NI VeriStand）       │
+│  ├── 车辆动力学模型                        │
+│  ├── 传感器信号模拟（CAN 总线注入）        │
+│  └── 故障注入模块（断路 / 短路 / 信号漂移）│
+│                    │                       │
+│              I/O 接口板                    │
+│                    │                       │
+│  ┌─────────────────▼────────────────────┐  │
+│  │    真实线控 ECU（EPS / EHB / ETC）   │  │
+│  └──────────────────────────────────────┘  │
+└────────────────────────────────────────────┘
+</code></pre></div>
+<p><abbr title="Hardware in the Loop，硬件在环">HIL</abbr> 测试重点验证：
+- 故障注入后的冗余切换逻辑；
+- <abbr title="Automatic Emergency Braking，自动紧急制动">AEB</abbr> / TCS / ESC 等功能的响应时间；
+- 通信丢帧、超时场景下的系统行为；
+- 极端工况（高温 / 低温 / 振动）下的 <abbr title="Electronic Control Unit，电子控制单元">ECU</abbr> 稳定性。</p>
+<h3 id="72">7.2 底盘标定流程</h3>
+<p>线控底盘在出厂前需完成以下标定：</p>
+<table>
+<thead>
+<tr>
+<th>标定项目</th>
+<th>方法</th>
+<th>目标精度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>转向角零位标定</td>
+<td>直线行驶时自动学习方向盘中位</td>
+<td>± 0.5°</td>
+</tr>
+<tr>
+<td>转向传动比标定</td>
+<td>测量方向盘转角与车轮转角的映射关系</td>
+<td>± 1%</td>
+</tr>
+<tr>
+<td>制动力矩标定</td>
+<td>测功机 + 压力传感器标定卡钳夹紧力</td>
+<td>± 2%</td>
+</tr>
+<tr>
+<td>踏板感觉标定</td>
+<td>踏板力 - 踏板行程曲线调整</td>
+<td>主观评价</td>
+</tr>
+<tr>
+<td>加速踏板零位标定</td>
+<td>传感器上电后自学习空载信号</td>
+<td>± 10 mV</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-fmea">7.3 FMEA（失效模式与效果分析）</h3>
+<p>失效模式与效果分析（Failure Mode and Effects Analysis，FMEA）是线控系统功能安全开发的核心工具：</p>
+<p>以<strong>线控制动 EHB</strong> 为例，部分 FMEA 条目：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>失效模式</th>
+<th>失效效果</th>
+<th>严重度（S）</th>
+<th>发生率（O）</th>
+<th>探测度（D）</th>
+<th>RPN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APPS 传感器</td>
+<td>信号漂移（偏高）</td>
+<td>意外加速</td>
+<td>9</td>
+<td>3</td>
+<td>2</td>
+<td>54</td>
+</tr>
+<tr>
+<td>iBooster 电机</td>
+<td>绕组开路</td>
+<td>制动助力丧失</td>
+<td>10</td>
+<td>2</td>
+<td>3</td>
+<td>60</td>
+</tr>
+<tr>
+<td><abbr title="Controller Area Network，控制器局域网">CAN</abbr> 总线</td>
+<td>持续丢帧</td>
+<td>AD 指令无法传达</td>
+<td>8</td>
+<td>4</td>
+<td>2</td>
+<td>64</td>
+</tr>
+<tr>
+<td>踏板模拟器</td>
+<td>弹簧断裂</td>
+<td>踏板力反馈异常</td>
+<td>6</td>
+<td>1</td>
+<td>4</td>
+<td>24</td>
+</tr>
+</tbody>
+</table>
+<p>其中 <span class="arithmatex">\(\text{RPN} = S \times O \times D\)</span>，RPN &gt; 100 的项目需优先采取改进措施。</p>
+<h3 id="74">7.4 量产线控底盘案例</h3>
+<p><strong>比亚迪 e 平台 3.0（搭载于海豹 / 汉 EV 等车型）：</strong></p>
+<ul>
+<li>集成 EHB（自研电子液压制动）+ <abbr title="Electric Power Steering，电动助力转向">EPS</abbr>（博世）+ SbS（电子换挡）+ EPB；</li>
+<li>采用 CTB（Cell-to-Body）一体化车身结构，提升底盘整体刚度；</li>
+<li>支持 L2+ 辅助驾驶，线控接口向第三方 AD 域控制器开放；</li>
+<li>底盘域通信：<abbr title="Controller Area Network，控制器局域网">CAN</abbr> FD 500 kbps + 车载以太网 100BASE-T1。</li>
+</ul>
+<p><strong>吉利 SEA 浩瀚架构（搭载于极氪 001 / 领克 / Smart 等车型）：</strong></p>
+<ul>
+<li>原生线控底盘设计，支持 L3+ 自动驾驶扩展；</li>
+<li>前后双电机四轮驱动，支持扭矩矢量控制；</li>
+<li>采用 One-Box EHB 集成制动方案，响应时间 &lt; 120 ms；</li>
+<li>7 层电气架构（E/E Architecture），线控系统通过区域控制器（Zone Controller）统一管理；</li>
+<li>已量产车型最高支持行业标准 <abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-C 线控制动，<abbr title="Automotive Safety Integrity Level，汽车安全完整性等级">ASIL</abbr>-D 转向。</li>
+</ul>
+<hr />
+<h2 id="_2">参考资料</h2>
+<ol>
+<li>ISO 26262:2018. <em>Road Vehicles — Functional Safety</em>. International Organization for Standardization.</li>
+<li>Bosch. <em>iBooster: Electromechanical Brake Booster Technical Documentation</em>. Robert Bosch GmbH, 2023.</li>
+<li>R. Isermann. <em>Mechatronic Systems: Fundamentals</em>. Springer-Verlag, 2005.</li>
+<li>SAE International. <em>SAE J3016: Taxonomy and Definitions for Terms Related to Driving Automation Systems for On-Road Motor Vehicles</em>. SAE International, 2021.</li>
+<li>龚进峰, 李克强. 《智能网联汽车线控底盘技术综述》. 汽车工程学报, 2022, 12(3): 1-18.</li>
+</ol>
+
+
+
+
+
+
+
+  
+    
+  
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2026年9月7日 22:59:19 UTC">2026年9月7日</span>
+  </span>
+
+    
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      原内容由云飞机器人实验室发起；本镜像由 fengyitao1213 维护，遵循 CC BY-SA 4.0。
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.indexes", "navigation.top", "navigation.tracking", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../_static/js/mathjaxhelper.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
